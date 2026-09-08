@@ -1,11 +1,11 @@
 # Security Audit — `per_track`
 
-**Revision:** working tree @ 2026-08-23 (the `misonetwork` workspace is not a
-git repository — `git rev-parse` fails; no commit hash exists). Dependency pin:
-`musicos` (protocol) @ `ecb3da52c14912e257f00b30185c598e92ffc5e3`; the audited
-`musicos::release` source is the on-disk `../protocol` working tree. Pin bumped
-2026-08-23: `musicos` @ `c23fe7f…` (carrying the `miso_share` treasury-cap
-hardening `d67ff8c`).
+**Revision:** `per-track` @ `8d6dfdd3955b2f0e3d0e9651802ec49d30197da1` — this is
+a git repository; `git rev-parse HEAD` resolves cleanly. Dependency pin:
+`musicos` @ `4fed48b2b5632122fb677d742881259c65b1bc78`
+(`https://github.com/misofm/musicos.git`), resolved as an exact Git
+dependency per `Move.toml`/`Move.lock` — not a local working tree. The
+audited `musicos::release` source is that pinned revision.
 **Date:** 2026-08-23 · **Toolchain:** sui 1.77.2-51d177ad7d65
 
 Audit of `per_track` (89 LOC, `sources/per_track.move`), the
