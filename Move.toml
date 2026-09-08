@@ -8,4 +8,4 @@ authors = ["Miso Labs, Inc. (build@miso.network)"]
 # array against the tracklist, so alignment is an invariant of the type rather
 # than a rule each extension must remember — hence the dependency on miso core.
 [dependencies]
-miso = { git = "https://github.com/misofm/protocol.git", rev = "ffa0e38b8ba4815d81de1076101ea37d2c71c623" }
+miso = { git = "https://github.com/misofm/protocol.git", rev = "09f0dc699a112c37d8da8a765596cc1ed623fe79" }
