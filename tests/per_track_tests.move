@@ -11,8 +11,8 @@
 #[test_only]
 module per_track::per_track_tests;
 
-use miso::release;
-use miso::track;
+use musicos::release;
+use musicos::track;
 use std::unit_test::destroy;
 
 // Alias the module so the bare address `per_track` resolves in

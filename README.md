@@ -18,7 +18,7 @@ Construction reads the `Release` and sizes/validates the array against `total_tr
 
 ## Dependencies
 
-- **`miso`** — core protocol; `Release` (read at construction for `total_tracks()`).
+- **`musicos`** — core protocol; `Release` (read at construction for `total_tracks()`).
 
 ## Build & test
 

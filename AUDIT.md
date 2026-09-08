@@ -2,9 +2,9 @@
 
 **Revision:** working tree @ 2026-08-23 (the `misonetwork` workspace is not a
 git repository — `git rev-parse` fails; no commit hash exists). Dependency pin:
-`miso` (protocol) @ `ecb3da52c14912e257f00b30185c598e92ffc5e3`; the audited
-`miso::release` source is the on-disk `../protocol` working tree. Pin bumped
-2026-08-23: `miso` @ `c23fe7f…` (carrying the `miso_share` treasury-cap
+`musicos` (protocol) @ `ecb3da52c14912e257f00b30185c598e92ffc5e3`; the audited
+`musicos::release` source is the on-disk `../protocol` working tree. Pin bumped
+2026-08-23: `musicos` @ `c23fe7f…` (carrying the `miso_share` treasury-cap
 hardening `d67ff8c`).
 **Date:** 2026-08-23 · **Toolchain:** sui 1.77.2-51d177ad7d65
 
@@ -31,12 +31,12 @@ Verdict: **safe to publish — no findings.**
 - **Misaligned parallel array (wrong track gets wrong metadata):** prevented by
   construction — both public constructors size/validate against
   `release.tracks().length()`, and a release's tracklist is frozen at creation
-  (`miso::release` embeds `tracks: vector<Track>` set once in `release::new`,
+  (`musicos::release` embeds `tracks: vector<Track>` set once in `release::new`,
   immutable after publish; there is no track-add/remove API at all), so an
   aligned `PerTrack` can never drift out of alignment.
 - **Out-of-bounds access:** both accessors assert `i < length` before indexing.
 - **DoS via `filled`:** loop bound is the track count, itself capped at
-  `MAX_TRACKS = 255` in `miso::release` (`release.move:115,230`) — ≤ 255
+  `MAX_TRACKS = 255` in `musicos::release` (`release.move:115,230`) — ≤ 255
   `push_back`s of small values.
 - **Unauthenticated mutation:** `borrow_mut` returns `&mut Data` to whoever
   holds `&mut PerTrack<Data>` — deliberately. The container is not the trust

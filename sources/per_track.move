@@ -18,7 +18,7 @@
 /// release's whole life.
 module per_track::per_track;
 
-use miso::release::Release;
+use musicos::release::Release;
 
 // === Errors ===
 
