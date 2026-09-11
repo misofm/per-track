@@ -14,6 +14,7 @@ module per_track::per_track_tests;
 use musicos::release;
 use musicos::track;
 use std::unit_test::destroy;
+use sui::event;
 
 // Alias the module so the bare address `per_track` resolves in
 // `#[expected_failure(location = per_track::per_track)]` (avoids the
@@ -128,4 +129,47 @@ fun filled_on_zero_track_release_is_empty() {
 
     destroy(per);
     destroy(rel);
+}
+
+#[test]
+fun constructors_emit_no_events() {
+    let mut ctx = tx_context::dummy();
+    let rel = release_with_tracks(2, &mut ctx);
+    let empty_rel = release_with_tracks(0, &mut ctx);
+    let events_before = event::num_events();
+
+    let per_new = pt::new(&rel, vector[10u64, 20]);
+    let per_filled = pt::filled(&rel, 7u64);
+    let empty_new = pt::new<u64>(&empty_rel, vector[]);
+    let empty_filled = pt::filled(&empty_rel, 9u64);
+
+    assert!(event::num_events() == events_before);
+    destroy(per_new);
+    destroy(per_filled);
+    destroy(empty_new);
+    destroy(empty_filled);
+    destroy(rel);
+    destroy(empty_rel);
+}
+
+#[test]
+fun borrow_mut_without_write_emits_no_events_and_preserves_value() {
+    let mut entries = pt::from_entries_for_testing(vector[10u64, 20, 30]);
+    let events_before = event::num_events();
+
+    entries.borrow_mut(1);
+
+    assert!(event::num_events() == events_before);
+    assert!(*entries.borrow(1) == 20);
+}
+
+#[test]
+fun views_emit_no_events() {
+    let entries = pt::from_entries_for_testing(vector[10u64, 20, 30]);
+    let events_before = event::num_events();
+
+    assert!(entries.length() == 3);
+    assert!(*entries.borrow(0) == 10);
+    assert!(*entries.borrow(2) == 30);
+    assert!(event::num_events() == events_before);
 }
