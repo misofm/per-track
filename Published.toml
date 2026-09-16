@@ -3,13 +3,12 @@
 # This file SHOULD be committed to source control
 
 [published.mainnet]
-chain-id = "35834a8a"
-published-at = "0x6957682a420482177bf4b5b539e9604a32673ff19ce384c4d98195f29dff4272"
-original-id = "0x6957682a420482177bf4b5b539e9604a32673ff19ce384c4d98195f29dff4272"
+chain-id = "4btiuiMPvEENsttpZC7CZ53DruC3MAgfznDbASZ7DR6S"
+published-at = "0x01c10bf9ff71a64c2850ce64055124942d65bd0be48ec4758d90073287f389b6"
+original-id = "0x01c10bf9ff71a64c2850ce64055124942d65bd0be48ec4758d90073287f389b6"
 version = 1
-toolchain-version = "1.75.1"
+toolchain-version = "1.79.0"
 build-config = { flavor = "sui", edition = "2024" }
-upgrade-capability = "0xaaa883437fbdd14d47d78aae254b9b5a24ffcbf125d414f685792ab4879d32a1"
 
 [published.testnet]
 chain-id = "69WiPg3DAQiwdxfncX6wYQ2siKwAe6L9BZthQea3JNMD"
