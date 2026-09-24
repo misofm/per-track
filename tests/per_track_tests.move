@@ -16,9 +16,6 @@ use musicos::track;
 use std::unit_test::destroy;
 use sui::event;
 
-// Alias the module so the bare address `per_track` resolves in
-// `#[expected_failure(location = per_track::per_track)]` (avoids the
-// addr==module name collision).
 use per_track::per_track as pt;
 
 /// A fake object id — a `UID` created and immediately deleted, so the id is
@@ -31,16 +28,13 @@ fun fake_id(ctx: &mut TxContext): ID {
     id
 }
 
-/// A release with `n` tracks, built without needing real composition/
-/// recording objects — only `PerTrack`'s alignment-to-tracklist-length logic
-/// is under test here, so the track payload's other fields are arbitrary.
+/// A release with `n` tracks; only the tracklist length matters to `PerTrack`.
 fun release_with_tracks(n: u64, ctx: &mut TxContext): release::Release {
-    let comp_id = fake_id(ctx);
     let rec_id = fake_id(ctx);
     let release_id = fake_id(ctx);
     let mut tracks = vector[];
-    n.do!(|_| tracks.push_back(track::new_for_testing(comp_id, rec_id, release_id, 10000)));
-    let (rel, cap) = release::new_for_testing(b"Album".to_string(), tracks, ctx);
+    n.do!(|_| tracks.push_back(track::new_for_testing(rec_id, release_id, 10000)));
+    let (rel, cap) = release::new_for_testing(tracks, ctx);
     destroy(cap);
     rel
 }
@@ -66,13 +60,13 @@ fun empty_has_zero_length() {
     assert!(entries.length() == 0);
 }
 
-#[test, expected_failure(abort_code = 0, location = per_track::per_track)] // EIndexOutOfBounds
+#[test, expected_failure(abort_code = pt::EIndexOutOfBounds)]
 fun borrow_past_end_aborts() {
     let entries = pt::from_entries_for_testing(vector[1u64]);
     entries.borrow(5);
 }
 
-#[test, expected_failure(abort_code = 0, location = per_track::per_track)] // EIndexOutOfBounds
+#[test, expected_failure(abort_code = pt::EIndexOutOfBounds)]
 fun borrow_mut_past_end_aborts() {
     let mut entries = pt::from_entries_for_testing(vector[1u64]);
     entries.borrow_mut(5);
@@ -95,7 +89,7 @@ fun new_builds_one_entry_per_track_in_order() {
     destroy(rel);
 }
 
-#[test, expected_failure(abort_code = 1, location = per_track::per_track)] // ELengthMismatch
+#[test, expected_failure(abort_code = pt::ELengthMismatch)]
 fun new_aborts_when_entries_length_does_not_match_tracklist() {
     let mut ctx = tx_context::dummy();
     let rel = release_with_tracks(2, &mut ctx);

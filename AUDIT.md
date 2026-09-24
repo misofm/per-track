@@ -70,3 +70,15 @@ None.
 
 - **9/9 unit tests pass** (`sui move test`, sui 1.77.2), including the
   length-mismatch abort and per-track ordering test against a real `Release`.
+
+## 2026-09-24 — repin to musicos `6dff4de`
+
+`musicos` is now pinned at `6dff4deca5ced186989c064e152c92a06384750c`. The
+module source is unchanged: it only reads `Release::tracks()`, whose shape is
+the same. Core no longer caps a tracklist at 255 (`MAX_TRACKS` was removed), so
+the bound noted above now comes from Sui's object, event and gas limits; the
+alignment invariant is unaffected. Tests follow the current core test helpers
+(`track::new_for_testing(recording_id, target_release_id, split_bps)`,
+`release::new_for_testing(tracks, ctx)`) and reference error constants directly
+(`abort_code = pt::EIndexOutOfBounds`). 12/12 tests pass on testnet and mainnet
+build envs (sui 1.79.0).
