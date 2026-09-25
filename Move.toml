@@ -2,7 +2,7 @@
 name = "per_track"
 edition = "2024"
 license = "Apache 2.0"
-authors = ["Miso Labs, Inc. (build@miso.network)"]
+authors = ["Miso Labs, Inc. (build@miso.fm)"]
 
 # A per-track parallel array. Construction reads `Release` to size/validate the
 # array against the tracklist, so alignment is an invariant of the type rather
