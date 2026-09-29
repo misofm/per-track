@@ -33,7 +33,7 @@ fun release_with_tracks(n: u64, ctx: &mut TxContext): release::Release {
     let rec_id = fake_id(ctx);
     let release_id = fake_id(ctx);
     let mut tracks = vector[];
-    n.do!(|_| tracks.push_back(track::new_for_testing(rec_id, release_id, 10000)));
+    n.do!(|_| tracks.push_back(track::consent_for_testing(rec_id, release_id, 10000)));
     let (rel, cap) = release::new_for_testing(tracks, ctx);
     destroy(cap);
     rel
