@@ -12,7 +12,6 @@
 module per_track::per_track_tests;
 
 use musicos::release;
-use musicos::track;
 use std::unit_test::destroy;
 use sui::event;
 use per_track::per_track as pt;
@@ -32,7 +31,7 @@ fun release_with_tracks(n: u64, ctx: &mut TxContext): release::Release {
     let rec_id = fake_id(ctx);
     let release_id = fake_id(ctx);
     let mut tracks = vector[];
-    n.do!(|_| tracks.push_back(track::consent_for_testing(rec_id, release_id)));
+    n.do!(|_| tracks.push_back(release::consent_for_testing(rec_id, release_id)));
     let (rel, cap) = release::new_for_testing(tracks, ctx);
     destroy(cap);
     rel
