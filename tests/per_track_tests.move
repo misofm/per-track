@@ -15,7 +15,6 @@ use musicos::release;
 use musicos::track;
 use std::unit_test::destroy;
 use sui::event;
-
 use per_track::per_track as pt;
 
 /// A fake object id — a `UID` created and immediately deleted, so the id is
@@ -33,7 +32,7 @@ fun release_with_tracks(n: u64, ctx: &mut TxContext): release::Release {
     let rec_id = fake_id(ctx);
     let release_id = fake_id(ctx);
     let mut tracks = vector[];
-    n.do!(|_| tracks.push_back(track::consent_for_testing(rec_id, release_id, 10000)));
+    n.do!(|_| tracks.push_back(track::consent_for_testing(rec_id, release_id)));
     let (rel, cap) = release::new_for_testing(tracks, ctx);
     destroy(cap);
     rel

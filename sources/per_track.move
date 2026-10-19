@@ -4,8 +4,8 @@
 /// `PerTrack<Data>` — one `Data` value per track of a release, held in
 /// tracklist order.
 ///
-/// A release's tracks are a flat, ordered `vector<Track>`, frozen at release
-/// creation. `PerTrack` is the parallel array to that list: index `i` holds the
+/// A release's tracks are a flat, ordered `vector<ID>` of recording IDs,
+/// frozen at release creation. `PerTrack` is the parallel array to that list: index `i` holds the
 /// payload for the `i`-th track. It is the shared shape behind per-track release
 /// metadata such as cover art (`PerTrack<Option<CoverArt>>`) or genre — and the
 /// natural home for display grouping (disc/side boundaries), which core
@@ -40,7 +40,7 @@ public struct PerTrack<Data: store + drop>(vector<Data>) has store, drop;
 /// Builds a `PerTrack` from one value per track, in tracklist order. Aborts
 /// unless `entries.length()` equals the release's track count.
 public fun new<Data: store + drop>(release: &Release, entries: vector<Data>): PerTrack<Data> {
-    assert!(entries.length() == release.tracks().length(), ELengthMismatch);
+    assert!(entries.length() == release.recording_ids().length(), ELengthMismatch);
     PerTrack(entries)
 }
 
@@ -49,7 +49,7 @@ public fun new<Data: store + drop>(release: &Release, entries: vector<Data>): Pe
 /// metadata: fill with `option::none()`, then set individual tracks via
 /// `borrow_mut`.
 public fun filled<Data: store + drop + copy>(release: &Release, value: Data): PerTrack<Data> {
-    let n = release.tracks().length();
+    let n = release.recording_ids().length();
     let mut entries = vector[];
     let mut i = 0;
     while (i < n) {
