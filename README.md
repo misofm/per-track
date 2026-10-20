@@ -1,24 +1,24 @@
-# `per_track`
+# `release_track_data`
 
-> A per-track parallel array: one `Data` value per track of a release, held in tracklist order. The shared primitive behind per-track release metadata (cover art, genre).
+> One `Data` value per track of a release, in tracklist order. The shared primitive behind per-track release metadata, such as cover art.
 
-**Layer:** `move/lib` — a primitive, not core protocol and not an extension (it attaches to nothing). It is a reusable building block composed by release extensions such as `release_cover_art` and `release_genre`.
+**Layer:** `move/lib`. A primitive, not core protocol and not an extension (it attaches to nothing). Release extensions such as `release_cover_art` store it.
 
-A release's tracks form a flat, ordered list — disc-major: every track of disc 0 in order, then disc 1, and so on — that is frozen at release creation. `PerTrack<Data>` is the parallel array to that list: index `i` holds the payload for the `i`-th track. `Data` is the per-track payload — `CoverArt` when every track carries one, or `Option<CoverArt>` for override-style metadata layered over an album-level default.
+A release's tracks form a flat, ordered list, `release.recording_ids()`, frozen at release creation. `ReleaseTrackData<Data>` runs parallel to that list: index `i` holds the data for the `i`-th track. `Data` is `CoverArt` when every track carries one, or `Option<CoverArt>` for overrides of an album-level default.
 
-Construction reads the `Release` and sizes/validates the array against `recording_ids().length()`, so a `PerTrack` is parallel to the tracklist **by construction** — an extension cannot attach a misaligned array. Because the tracklist is frozen at release creation, that alignment holds for the release's whole life.
+Construction reads the `Release` and checks the length against `recording_ids().length()`, so an extension can't attach misaligned data. Because the tracklist is frozen, the alignment holds for the release's whole life.
 
 ## API
 
-- **`per_track::new<Data>(release, entries)`** — wraps a per-track vector in tracklist order; aborts unless its length equals `release.recording_ids().length()`.
-- **`per_track::filled<Data>(release, value)`** — sizes to the release's track count with every track initialized to `value` (e.g. `option::none()`); the natural start for override-style metadata.
-- **`per_track::length<Data>`** — the number of tracks covered.
-- **`per_track::borrow<Data>`** — borrows track `i`'s payload; aborts if `i` is out of range.
-- **`per_track::borrow_mut<Data>`** — mutably borrows track `i`'s payload; aborts if `i` is out of range.
+- **`release_track_data::new<Data>(release, entries)`** wraps one value per track, in tracklist order. Aborts unless the length equals `release.recording_ids().length()`.
+- **`release_track_data::filled<Data>(release, value)`** sizes to the release's track count with every track set to `value` (e.g. `option::none()`). The natural start for override-style metadata.
+- **`release_track_data::length<Data>`** returns the number of tracks covered.
+- **`release_track_data::borrow<Data>`** borrows track `i`'s data. Aborts if `i` is out of range.
+- **`release_track_data::borrow_mut<Data>`** mutably borrows track `i`'s data. Aborts if `i` is out of range.
 
 ## Dependencies
 
-- **`musicos`** — core protocol; `Release` (read at construction for `recording_ids().length()`).
+- **`musicos`**: core protocol. `Release` is read at construction for `recording_ids().length()`.
 
 ## Build & test
 

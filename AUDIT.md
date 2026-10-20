@@ -1,5 +1,7 @@
 # Security Audit — `per_track`
 
+> Historical. This audit predates the rename of `per_track` to `release_track_data` (`PerTrack` to `ReleaseTrackData`); names, paths and line numbers below refer to the old package.
+
 **Revision:** `per-track` @ `8d6dfdd3955b2f0e3d0e9651802ec49d30197da1` — this is
 a git repository; `git rev-parse HEAD` resolves cleanly. Dependency pin:
 `musicos` @ `4fed48b2b5632122fb677d742881259c65b1bc78`

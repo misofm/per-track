@@ -1,10 +1,10 @@
 [package]
-name = "per_track"
+name = "release_track_data"
 edition = "2024"
 license = "Apache 2.0"
 authors = ["Miso Labs, Inc. (build@miso.fm)"]
 
-# A per-track parallel array. Construction reads `Release` to size/validate the
+# One value per track of a release. Construction reads `Release` to size/validate the
 # array against the tracklist, so alignment is an invariant of the type rather
 # than a rule each extension must remember — hence the dependency on musicos core.
 [dependencies]
