@@ -1,91 +1,46 @@
-# Security Audit — `per_track`
+# Security Review — `release_track_data`
 
-> Historical. This audit predates the rename of `per_track` to `release_track_data` (`PerTrack` to `ReleaseTrackData`); names, paths and line numbers below refer to the old package.
+**Date:** 2026-10-20 · **Toolchain:** Sui 1.82.1 · **musicos:** `2457043`
 
-**Revision:** `per-track` @ `8d6dfdd3955b2f0e3d0e9651802ec49d30197da1` — this is
-a git repository; `git rev-parse HEAD` resolves cleanly. Dependency pin:
-`musicos` @ `4fed48b2b5632122fb677d742881259c65b1bc78`
-(`https://github.com/misofm/musicos.git`), resolved as an exact Git
-dependency per `Move.toml`/`Move.lock` — not a local working tree. The
-audited `musicos::release` source is that pinned revision.
-**Date:** 2026-08-23 · **Toolchain:** sui 1.77.2-51d177ad7d65
-
-Audit of `per_track` (89 LOC, `sources/per_track.move`), the
-`PerTrack<Data>` parallel-array container used by `release_cover_art`,
-`release_genre`, and `release_dsp_link` to hold one payload per release track.
-Verdict: **safe to publish — no findings.**
+Review of `ReleaseTrackData<Data>`, the parallel-array container that per-track
+release extensions use to hold one payload per track. Verdict: **safe to
+publish — no findings.**
 
 ## What it does
 
-`PerTrack<Data: store + drop>` (`per_track.move:36`) wraps a
-`vector<Data>` meant to be index-aligned with a release's frozen tracklist:
+`ReleaseTrackData<Data: store + drop>` wraps a `vector<Data>` index-aligned with
+`release.recording_ids()`:
 
-- `new` (`per_track.move:42`) aborts unless `entries.length() ==
-  release.tracks().length()` — alignment is established at construction.
-- `filled` (`per_track.move:51`) builds a same-length vector of copies of one
-  value.
-- `borrow`/`borrow_mut` (`per_track.move:76,63`) are bounds-checked
-  (`EIndexOutOfBounds`).
-- `length` (`per_track.move:71`).
+- `new` aborts with `ELengthMismatch` unless `entries.length()` equals the
+  release's track count.
+- `filled` builds one copy of `value` per track.
+- `borrow` and `borrow_mut` assert `i < length` (`EIndexOutOfBounds`).
+- `length` returns the number of tracks covered.
 
 ## Threat model
 
-- **Misaligned parallel array (wrong track gets wrong metadata):** prevented by
-  construction — both public constructors size/validate against
-  `release.tracks().length()`, and a release's tracklist is frozen at creation
-  (`musicos::release` embeds `tracks: vector<Track>` set once in `release::new`,
-  immutable after publish; there is no track-add/remove API at all), so an
-  aligned `PerTrack` can never drift out of alignment.
-- **Out-of-bounds access:** both accessors assert `i < length` before indexing.
-- **DoS via `filled`:** loop bound is the track count, itself capped at
-  `MAX_TRACKS = 255` in `musicos::release` (`release.move:115,230`) — ≤ 255
-  `push_back`s of small values.
-- **Unauthenticated mutation:** `borrow_mut` returns `&mut Data` to whoever
-  holds `&mut PerTrack<Data>` — deliberately. The container is not the trust
-  boundary: every consuming extension stores its `PerTrack` in a dynamic field
-  on the release and only hands out mutable access after the
-  `ReleaseAdminCap` gate (verified per extension in their own audits). The
-  only alignment bypass, `from_entries_for_testing` (`per_track.move:87`), is
-  `#[test_only]` and absent from published bytecode.
-- **Abilities:** `store, drop` only — a `PerTrack` is not an object, cannot be
-  transferred/shared on its own, and can be dropped only by-value by code that
-  owns it (its holding extension). `Data` must be `drop`, so no
-  resource-holding payload can be silently destroyed *through* this type
-  beyond what the holding extension chooses.
+- **Misaligned data:** both constructors size or validate against
+  `release.recording_ids()`, and the tracklist is fixed at release creation, so
+  an instance stays aligned for the release's life.
+- **Out-of-bounds access:** both accessors check the index before indexing.
+- **Unbounded work:** `filled` loops once per track, bounded by
+  `musicos::release` `MAX_TRACKS = 1_000`.
+- **Unauthenticated mutation:** `borrow_mut` serves whoever holds
+  `&mut ReleaseTrackData`. The container is not the trust boundary; consuming
+  extensions store it on the release and gate mutable access by
+  `ReleaseAdminCap`. The alignment bypass `from_entries_for_testing` is
+  `#[test_only]`.
+- **Abilities:** `store + drop` only; it is not an object and `Data` must be
+  `drop`, so no resource can be destroyed through it.
 
 ## Findings
 
 None.
 
-## Edge cases verified
-
-- Zero-track release → `filled` yields an empty array (`per_track.move:52-59`;
-  test `filled_on_zero_track_release_is_empty`). (Note: production releases
-  always have ≥ 1 track — `release::new` asserts `ENoTracks`,
-  `release.move:229` — but the container is sound either way.)
-- `borrow`/`borrow_mut` at `i == length` abort (test
-  `borrow_past_end_aborts`).
-- `new` with `entries.length() != tracks().length()` aborts
-  (`ELengthMismatch`).
-
 ## Verification
 
-- **9/9 unit tests pass** (`sui move test`, sui 1.77.2), including the
-  length-mismatch abort and per-track ordering test against a real `Release`.
-
-## 2026-09-24 — repin to musicos `6dff4de`
-
-`musicos` is now pinned at `6dff4deca5ced186989c064e152c92a06384750c`. The
-module source is unchanged: it only reads `Release::tracks()`, whose shape is
-the same. Core no longer caps a tracklist at 255 (`MAX_TRACKS` was removed), so
-the bound noted above now comes from Sui's object, event and gas limits; the
-alignment invariant is unaffected. Tests follow the current core test helpers
-(`track::new_for_testing(recording_id, target_release_id, split_bps)`,
-`release::new_for_testing(tracks, ctx)`) and reference error constants directly
-(`abort_code = pt::EIndexOutOfBounds`). 12/12 tests pass on testnet and mainnet
-build envs (sui 1.79.0).
-
-## 2026-10-20 — note
-
-Core caps a tracklist again: musicos `6e43bd7` requires distinct recordings and
-sets `MAX_TRACKS = 1_000`, so `filled` and `new` are bounded by 1,000 tracks.
+14 unit tests pass with 100% coverage. They cover `new` with too few and too
+many entries, `borrow` and `borrow_mut` at exactly `i == length` and beyond,
+zero-track and `release::max_tracks()` releases for `new` and `filled`, and
+positional alignment: data built from `recording_ids()` matches it at every
+index.

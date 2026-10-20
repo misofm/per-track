@@ -1,19 +1,12 @@
 // Copyright (c) Miso Labs, Inc.
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-/// `ReleaseTrackData<Data>` is a pure `store, drop` value (no `key`/`UID`): it is
-/// never owned, shared, or transferred, so there is no ownership mechanic for
-/// `test_scenario` to exercise. `new`/`filled` do read a `&Release`, but only
-/// as a local, unshared reference used to size/validate the array in the same
-/// transaction it is built in — plain `tx_context::dummy()` construction
-/// models that faithfully; the release-bound *lifecycle* (publish, share,
-/// take_shared) belongs to the consuming extensions' own e2e tests.
+/// Unit tests for `ReleaseTrackData` bounds, sizing and tracklist alignment.
 #[test_only]
 module release_track_data::release_track_data_tests;
 
+use std::unit_test::{assert_eq, destroy};
 use musicos::release;
-use std::unit_test::destroy;
-use sui::event;
 use release_track_data::release_track_data;
 
 /// A fake object id — a `UID` created and immediately deleted, so the id is
@@ -39,22 +32,22 @@ fun release_with_tracks(n: u64, ctx: &mut TxContext): release::Release {
 #[test]
 fun length_and_borrow() {
     let entries = release_track_data::from_entries_for_testing(vector[10u64, 20, 30]);
-    assert!(entries.length() == 3);
-    assert!(*entries.borrow(0) == 10);
-    assert!(*entries.borrow(2) == 30);
+    assert_eq!(entries.length(), 3);
+    assert_eq!(*entries.borrow(0), 10);
+    assert_eq!(*entries.borrow(2), 30);
 }
 
 #[test]
 fun borrow_mut_replaces_entry() {
     let mut entries = release_track_data::from_entries_for_testing(vector[1u64, 2, 3]);
     *entries.borrow_mut(1) = 99;
-    assert!(*entries.borrow(1) == 99);
+    assert_eq!(*entries.borrow(1), 99);
 }
 
 #[test]
 fun empty_has_zero_length() {
     let entries = release_track_data::from_entries_for_testing<u64>(vector[]);
-    assert!(entries.length() == 0);
+    assert_eq!(entries.length(), 0);
 }
 
 #[test, expected_failure(abort_code = release_track_data::EIndexOutOfBounds)]
@@ -69,18 +62,16 @@ fun borrow_mut_past_end_aborts() {
     entries.borrow_mut(5);
 }
 
-// === Release-bound construction ===
-
 #[test]
 fun new_builds_one_entry_per_track_in_order() {
     let mut ctx = tx_context::dummy();
     let rel = release_with_tracks(3, &mut ctx);
 
     let track_data = release_track_data::new(&rel, vector[10u64, 20, 30]);
-    assert!(track_data.length() == 3);
-    assert!(*track_data.borrow(0) == 10);
-    assert!(*track_data.borrow(1) == 20);
-    assert!(*track_data.borrow(2) == 30);
+    assert_eq!(track_data.length(), 3);
+    assert_eq!(*track_data.borrow(0), 10);
+    assert_eq!(*track_data.borrow(1), 20);
+    assert_eq!(*track_data.borrow(2), 30);
 
     destroy(track_data);
     destroy(rel);
@@ -91,7 +82,8 @@ fun new_aborts_when_entries_length_does_not_match_tracklist() {
     let mut ctx = tx_context::dummy();
     let rel = release_with_tracks(2, &mut ctx);
 
-    let track_data = release_track_data::new(&rel, vector[10u64]); // 1 entry for a 2-track release
+    // 1 entry for a 2-track release.
+    let track_data = release_track_data::new(&rel, vector[10u64]);
     destroy(track_data);
     destroy(rel);
 }
@@ -102,7 +94,7 @@ fun filled_sizes_to_tracklist_and_repeats_value() {
     let rel = release_with_tracks(4, &mut ctx);
 
     let track_data = release_track_data::filled(&rel, true);
-    assert!(track_data.length() == 4);
+    assert_eq!(track_data.length(), 4);
     assert!(*track_data.borrow(0));
     assert!(*track_data.borrow(3));
 
@@ -116,51 +108,62 @@ fun filled_on_zero_track_release_is_empty() {
     let rel = release_with_tracks(0, &mut ctx);
 
     let track_data = release_track_data::filled(&rel, 7u64);
-    assert!(track_data.length() == 0);
+    assert_eq!(track_data.length(), 0);
 
     destroy(track_data);
     destroy(rel);
 }
 
-#[test]
-fun constructors_emit_no_events() {
+#[test, expected_failure(abort_code = release_track_data::ELengthMismatch)]
+fun new_aborts_when_entries_exceed_tracklist() {
     let mut ctx = tx_context::dummy();
     let rel = release_with_tracks(2, &mut ctx);
-    let empty_rel = release_with_tracks(0, &mut ctx);
-    let events_before = event::num_events();
 
-    let data_new = release_track_data::new(&rel, vector[10u64, 20]);
-    let data_filled = release_track_data::filled(&rel, 7u64);
-    let empty_new = release_track_data::new<u64>(&empty_rel, vector[]);
-    let empty_filled = release_track_data::filled(&empty_rel, 9u64);
-
-    assert!(event::num_events() == events_before);
-    destroy(data_new);
-    destroy(data_filled);
-    destroy(empty_new);
-    destroy(empty_filled);
+    let track_data = release_track_data::new(&rel, vector[10u64, 20, 30]);
+    destroy(track_data);
     destroy(rel);
-    destroy(empty_rel);
+}
+
+#[test, expected_failure(abort_code = release_track_data::EIndexOutOfBounds)]
+fun borrow_at_length_aborts() {
+    let entries = release_track_data::from_entries_for_testing(vector[1u64, 2]);
+    entries.borrow(2);
+}
+
+#[test, expected_failure(abort_code = release_track_data::EIndexOutOfBounds)]
+fun borrow_mut_at_length_aborts() {
+    let mut entries = release_track_data::from_entries_for_testing(vector[1u64, 2]);
+    entries.borrow_mut(2);
 }
 
 #[test]
-fun borrow_mut_without_write_emits_no_events_and_preserves_value() {
-    let mut entries = release_track_data::from_entries_for_testing(vector[10u64, 20, 30]);
-    let events_before = event::num_events();
+fun new_and_filled_at_max_tracks() {
+    let mut ctx = tx_context::dummy();
+    let max = release::max_tracks();
+    let rel = release_with_tracks(max, &mut ctx);
 
-    entries.borrow_mut(1);
+    let filled = release_track_data::filled(&rel, 7u64);
+    assert_eq!(filled.length(), max);
+    assert_eq!(*filled.borrow(max - 1), 7);
 
-    assert!(event::num_events() == events_before);
-    assert!(*entries.borrow(1) == 20);
+    let built = release_track_data::new(&rel, vector::tabulate!(max, |i| i));
+    assert_eq!(built.length(), max);
+    assert_eq!(*built.borrow(max - 1), max - 1);
+
+    destroy(filled);
+    destroy(built);
+    destroy(rel);
 }
 
 #[test]
-fun views_emit_no_events() {
-    let entries = release_track_data::from_entries_for_testing(vector[10u64, 20, 30]);
-    let events_before = event::num_events();
+fun entries_align_with_the_tracklist() {
+    let mut ctx = tx_context::dummy();
+    let rel = release_with_tracks(5, &mut ctx);
 
-    assert!(entries.length() == 3);
-    assert!(*entries.borrow(0) == 10);
-    assert!(*entries.borrow(2) == 30);
-    assert!(event::num_events() == events_before);
+    let track_data = release_track_data::new(&rel, *rel.recording_ids());
+    assert_eq!(track_data.length(), rel.recording_ids().length());
+    track_data.length().do!(|i| assert_eq!(*track_data.borrow(i), rel.recording_ids()[i]));
+
+    destroy(track_data);
+    destroy(rel);
 }

@@ -70,7 +70,6 @@ public fun borrow<Data: store + drop>(self: &ReleaseTrackData<Data>, i: u64): &D
 
 /// Builds a `ReleaseTrackData` directly from `entries`, bypassing the release
 /// check, so the index/bounds logic can be unit-tested without a `Release`.
-/// The release-bound invariant is exercised by the consuming extensions' tests.
 #[test_only]
 public fun from_entries_for_testing<Data: store + drop>(
     entries: vector<Data>,
