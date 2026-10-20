@@ -1,5 +1,5 @@
 // Copyright (c) Miso Labs, Inc.
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: FSL-1.1-ALv2
 
 /// `ReleaseTrackData<Data>`: one `Data` value per track of a release, in
 /// tracklist order.

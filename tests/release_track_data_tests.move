@@ -1,5 +1,5 @@
 // Copyright (c) Miso Labs, Inc.
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: FSL-1.1-ALv2
 
 /// `ReleaseTrackData<Data>` is a pure `store, drop` value (no `key`/`UID`): it is
 /// never owned, shared, or transferred, so there is no ownership mechanic for

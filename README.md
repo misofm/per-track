@@ -26,3 +26,9 @@ Construction reads the `Release` and checks the length against `recording_ids().
 sui move build
 sui move test
 ```
+
+## License
+
+[Functional Source License 1.1, ALv2 Future License](./LICENSE.md)
+(FSL-1.1-ALv2). Any use except a Competing Use is permitted, and each version
+becomes Apache-2.0 two years after its release.
