@@ -28,10 +28,9 @@ fun fake_id(ctx: &mut TxContext): ID {
 
 /// A release with `n` tracks; only the tracklist length matters to `PerTrack`.
 fun release_with_tracks(n: u64, ctx: &mut TxContext): release::Release {
-    let rec_id = fake_id(ctx);
     let release_id = fake_id(ctx);
     let mut tracks = vector[];
-    n.do!(|_| tracks.push_back(release::consent_for_testing(rec_id, release_id)));
+    n.do!(|_| tracks.push_back(release::consent_for_testing(fake_id(ctx), release_id)));
     let (rel, cap) = release::new_for_testing(tracks, ctx);
     destroy(cap);
     rel
