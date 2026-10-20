@@ -11,6 +11,8 @@
 /// cover art (`ReleaseTrackData<Option<CoverArt>>`).
 module release_track_data::release_track_data;
 
+// === Imports ===
+
 use musicos::release::Release;
 
 // === Errors ===
@@ -22,15 +24,13 @@ const ELengthMismatch: u64 = 1;
 
 // === Structs ===
 
-/// One `Data` per track, indexed by tracklist position. `Data` is `CoverArt`
-/// when every track carries one, or `Option<CoverArt>` for overrides of an
-/// album-level default.
+/// One `Data` per track, indexed by tracklist position.
 public struct ReleaseTrackData<Data: store + drop>(vector<Data>) has store, drop;
 
 // === Public Functions ===
 
-/// Builds a `ReleaseTrackData` from one value per track, in tracklist order.
-/// Aborts unless `entries.length()` equals the release's track count.
+/// Wraps one value per track, in tracklist order. Aborts unless
+/// `entries.length()` equals the release's track count.
 public fun new<Data: store + drop>(
     release: &Release,
     entries: vector<Data>,
@@ -39,10 +39,7 @@ public fun new<Data: store + drop>(
     ReleaseTrackData(entries)
 }
 
-/// Builds a `ReleaseTrackData` sized to the release's track count, with every
-/// track initialized to `value`. The natural starting point for override-style
-/// metadata: fill with `option::none()`, then set individual tracks via
-/// `borrow_mut`.
+/// One `value` per track, e.g. `option::none()` for override-style metadata.
 public fun filled<Data: store + drop + copy>(
     release: &Release,
     value: Data,
@@ -57,7 +54,7 @@ public fun filled<Data: store + drop + copy>(
     ReleaseTrackData(entries)
 }
 
-/// Borrows the payload for track `i` mutably. Aborts if `i` is out of range.
+/// Track `i`'s data, mutably. Aborts if `i` is out of range.
 public fun borrow_mut<Data: store + drop>(self: &mut ReleaseTrackData<Data>, i: u64): &mut Data {
     assert!(i < self.0.length(), EIndexOutOfBounds);
     &mut self.0[i]
@@ -70,7 +67,7 @@ public fun length<Data: store + drop>(self: &ReleaseTrackData<Data>): u64 {
     self.0.length()
 }
 
-/// Borrows the payload for track `i`. Aborts if `i` is out of range.
+/// Track `i`'s data. Aborts if `i` is out of range.
 public fun borrow<Data: store + drop>(self: &ReleaseTrackData<Data>, i: u64): &Data {
     assert!(i < self.0.length(), EIndexOutOfBounds);
     &self.0[i]

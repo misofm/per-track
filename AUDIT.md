@@ -84,3 +84,8 @@ alignment invariant is unaffected. Tests follow the current core test helpers
 `release::new_for_testing(tracks, ctx)`) and reference error constants directly
 (`abort_code = pt::EIndexOutOfBounds`). 12/12 tests pass on testnet and mainnet
 build envs (sui 1.79.0).
+
+## 2026-10-20 — note
+
+Core caps a tracklist again: musicos `6e43bd7` requires distinct recordings and
+sets `MAX_TRACKS = 1_000`, so `filled` and `new` are bounded by 1,000 tracks.
