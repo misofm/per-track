@@ -44,14 +44,7 @@ public fun filled<Data: store + drop + copy>(
     release: &Release,
     value: Data,
 ): ReleaseTrackData<Data> {
-    let n = release.recording_ids().length();
-    let mut entries = vector[];
-    let mut i = 0;
-    while (i < n) {
-        entries.push_back(value);
-        i = i + 1;
-    };
-    ReleaseTrackData(entries)
+    ReleaseTrackData(vector::tabulate!(release.recording_ids().length(), |_| value))
 }
 
 /// Track `i`'s data, mutably. Aborts if `i` is out of range.
