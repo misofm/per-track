@@ -18,7 +18,7 @@ Construction reads the `Release` and checks the length against `recording_ids().
 
 ## Dependencies
 
-- **`musicos`**: core protocol. `Release` is read at construction for `recording_ids().length()`.
+- **`miso_music`**: the music protocol (`misofm/music-protocol`). `Release` is read at construction for `recording_ids().length()`.
 
 ## Build & test
 

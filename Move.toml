@@ -6,6 +6,6 @@ authors = ["Miso Labs, Inc. (build@miso.fm)"]
 
 # One value per track of a release. Construction reads `Release` to size/validate the
 # array against the tracklist, so alignment is an invariant of the type rather
-# than a rule each extension must remember — hence the dependency on musicos core.
+# than a rule each extension must remember — hence the dependency on miso_music.
 [dependencies]
-musicos = { git = "https://github.com/misofm/musicos.git", rev = "24570431c1c02118c2b558d4ac1c30b39ca4cb2f" }
+miso_music = { git = "https://github.com/misofm/music-protocol.git", rev = "e676920b70e03cd2de8a52f440374d88d17d063f" }

@@ -1,6 +1,6 @@
 # Security Review — `release_track_data`
 
-**Date:** 2026-10-20 · **Toolchain:** Sui 1.82.1 · **musicos:** `2457043`
+**Date:** 2026-10-20 · **Toolchain:** Sui 1.82.1 · **miso_music:** `e676920`
 
 Review of `ReleaseTrackData<Data>`, the parallel-array container that per-track
 release extensions use to hold one payload per track. Verdict: **safe to
@@ -24,7 +24,7 @@ publish — no findings.**
   an instance stays aligned for the release's life.
 - **Out-of-bounds access:** both accessors check the index before indexing.
 - **Unbounded work:** `filled` loops once per track, bounded by
-  `musicos::release` `MAX_TRACKS = 1_000`.
+  `miso_music::release` `MAX_TRACKS = 1_000`.
 - **Unauthenticated mutation:** `borrow_mut` serves whoever holds
   `&mut ReleaseTrackData`. The container is not the trust boundary; consuming
   extensions store it on the release and gate mutable access by

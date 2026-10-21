@@ -13,7 +13,7 @@ module release_track_data::release_track_data;
 
 // === Imports ===
 
-use musicos::release::Release;
+use miso_music::release::Release;
 
 // === Errors ===
 

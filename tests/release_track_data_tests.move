@@ -6,7 +6,7 @@
 module release_track_data::release_track_data_tests;
 
 use std::unit_test::{assert_eq, destroy};
-use musicos::release;
+use miso_music::release;
 use release_track_data::release_track_data;
 
 /// A fake object id — a `UID` created and immediately deleted, so the id is
