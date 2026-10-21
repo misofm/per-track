@@ -1,14 +1,6 @@
 // Copyright (c) Miso Labs, Inc.
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-/// `ReleaseTrackData<Data>`: one `Data` value per track of a release, in
-/// tracklist order.
-///
-/// Index `i` holds the data for the `i`-th recording in
-/// `release.recording_ids()`. Construction checks the length against the
-/// tracklist, which is frozen at release creation, so the data stays aligned
-/// for the release's whole life. Used by per-track release metadata such as
-/// cover art (`ReleaseTrackData<Option<CoverArt>>`).
 module release_track_data::release_track_data;
 
 // === Imports ===
@@ -34,7 +26,6 @@ public fun new<Data: store + drop>(
     ReleaseTrackData(entries)
 }
 
-/// One `value` per track, e.g. `option::none()` for override-style metadata.
 public fun filled<Data: store + drop + copy>(
     release: &Release,
     value: Data,
@@ -60,7 +51,6 @@ public fun borrow<Data: store + drop>(self: &ReleaseTrackData<Data>, i: u64): &D
 
 // === Test Functions ===
 
-/// Bypasses the release check.
 #[test_only]
 public fun from_entries_for_testing<Data: store + drop>(
     entries: vector<Data>,

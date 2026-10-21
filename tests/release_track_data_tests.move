@@ -8,7 +8,6 @@ use std::unit_test::{assert_eq, destroy};
 use miso_music::release;
 use release_track_data::release_track_data;
 
-/// A real ID that nothing backs; `ReleaseTrackData` never inspects it.
 fun fake_id(ctx: &mut TxContext): ID {
     let uid = object::new(ctx);
     let id = uid.to_inner();
@@ -16,7 +15,6 @@ fun fake_id(ctx: &mut TxContext): ID {
     id
 }
 
-/// Only the tracklist length matters to `ReleaseTrackData`.
 fun release_with_tracks(n: u64, ctx: &mut TxContext): release::Release {
     let release_id = fake_id(ctx);
     let mut tracks = vector[];
@@ -79,7 +77,6 @@ fun new_aborts_when_entries_length_does_not_match_tracklist() {
     let mut ctx = tx_context::dummy();
     let rel = release_with_tracks(2, &mut ctx);
 
-    // 1 entry for a 2-track release.
     let track_data = release_track_data::new(&rel, vector[10u64]);
     destroy(track_data);
     destroy(rel);
