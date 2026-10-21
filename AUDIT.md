@@ -1,6 +1,6 @@
 # Security Review — `release_track_data`
 
-**Date:** 2026-10-20 · **Toolchain:** Sui 1.82.1 · **miso_music:** `f52e79d`
+**Date:** 2026-10-20 · **Toolchain:** Sui 1.82.1 · **miso_music:** `1538d77`
 
 Review of `ReleaseTrackData<Data>`, the parallel-array container that per-track
 release extensions use to hold one payload per track. Verdict: **safe to
