@@ -1,7 +1,6 @@
 // Copyright (c) Miso Labs, Inc.
 // SPDX-License-Identifier: FSL-1.1-ALv2
 
-/// Unit tests for `ReleaseTrackData` bounds, sizing and tracklist alignment.
 #[test_only]
 module release_track_data::release_track_data_tests;
 
@@ -9,9 +8,7 @@ use std::unit_test::{assert_eq, destroy};
 use miso_music::release;
 use release_track_data::release_track_data;
 
-/// A fake object id — a `UID` created and immediately deleted, so the id is
-/// real (derivable, unique) but nothing backs it. Good enough for track
-/// payload fields that `ReleaseTrackData`'s alignment logic never inspects.
+/// A real ID that nothing backs; `ReleaseTrackData` never inspects it.
 fun fake_id(ctx: &mut TxContext): ID {
     let uid = object::new(ctx);
     let id = uid.to_inner();
@@ -19,7 +16,7 @@ fun fake_id(ctx: &mut TxContext): ID {
     id
 }
 
-/// A release with `n` tracks; only the tracklist length matters to `ReleaseTrackData`.
+/// Only the tracklist length matters to `ReleaseTrackData`.
 fun release_with_tracks(n: u64, ctx: &mut TxContext): release::Release {
     let release_id = fake_id(ctx);
     let mut tracks = vector[];
