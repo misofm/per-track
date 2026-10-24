@@ -16,10 +16,9 @@ fun fake_id(ctx: &mut TxContext): ID {
 }
 
 fun release_with_tracks(n: u64, ctx: &mut TxContext): release::Release {
-    let release_id = fake_id(ctx);
-    let mut tracks = vector[];
-    n.do!(|_| tracks.push_back(release::consent_for_testing(fake_id(ctx), release_id)));
-    let (rel, cap) = release::new_for_testing(tracks, ctx);
+    let mut recording_ids = vector[];
+    n.do!(|_| recording_ids.push_back(fake_id(ctx)));
+    let (rel, cap) = release::new_for_testing(recording_ids, ctx);
     destroy(cap);
     rel
 }
@@ -154,9 +153,9 @@ fun entries_align_with_the_tracklist() {
     let mut ctx = tx_context::dummy();
     let rel = release_with_tracks(5, &mut ctx);
 
-    let track_data = release_track_data::new(&rel, *rel.recording_ids());
-    assert_eq!(track_data.length(), rel.recording_ids().length());
-    track_data.length().do!(|i| assert_eq!(*track_data.borrow(i), rel.recording_ids()[i]));
+    let track_data = release_track_data::new(&rel, *rel.tracks());
+    assert_eq!(track_data.length(), rel.tracks().length());
+    track_data.length().do!(|i| assert_eq!(*track_data.borrow(i), rel.tracks()[i]));
 
     destroy(track_data);
     destroy(rel);
