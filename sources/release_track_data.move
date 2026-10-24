@@ -33,20 +33,20 @@ public fun filled<Data: store + drop + copy>(
     ReleaseTrackData(vector::tabulate!(release.tracks().length(), |_| value))
 }
 
-public fun borrow_mut<Data: store + drop>(self: &mut ReleaseTrackData<Data>, i: u64): &mut Data {
-    assert!(i < self.0.length(), EIndexOutOfBounds);
-    &mut self.0[i]
+public fun borrow_mut<Data: store + drop>(self: &mut ReleaseTrackData<Data>, i: u8): &mut Data {
+    assert!((i as u64) < self.0.length(), EIndexOutOfBounds);
+    &mut self.0[i as u64]
 }
 
 // === View Functions ===
 
-public fun length<Data: store + drop>(self: &ReleaseTrackData<Data>): u64 {
-    self.0.length()
+public fun length<Data: store + drop>(self: &ReleaseTrackData<Data>): u8 {
+    self.0.length() as u8
 }
 
-public fun borrow<Data: store + drop>(self: &ReleaseTrackData<Data>, i: u64): &Data {
-    assert!(i < self.0.length(), EIndexOutOfBounds);
-    &self.0[i]
+public fun borrow<Data: store + drop>(self: &ReleaseTrackData<Data>, i: u8): &Data {
+    assert!((i as u64) < self.0.length(), EIndexOutOfBounds);
+    &self.0[i as u64]
 }
 
 // === Test Functions ===

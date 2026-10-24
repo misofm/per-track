@@ -12,9 +12,9 @@ Construction reads the `Release` and checks the length against `tracks().length(
 
 - **`release_track_data::new<Data>(release, entries)`** wraps one value per track, in tracklist order. Aborts unless the length equals `release.tracks().length()`.
 - **`release_track_data::filled<Data>(release, value)`** sizes to the release's track count with every track set to `value` (e.g. `option::none()`). The natural start for override-style metadata.
-- **`release_track_data::length<Data>`** returns the number of tracks covered.
-- **`release_track_data::borrow<Data>`** borrows track `i`'s data. Aborts if `i` is out of range.
-- **`release_track_data::borrow_mut<Data>`** mutably borrows track `i`'s data. Aborts if `i` is out of range.
+- **`release_track_data::length<Data>`** returns the number of tracks covered, as a `u8`; a release has at most 255 tracks.
+- **`release_track_data::borrow<Data>`** borrows track `i`'s data, where `i: u8`. Aborts if `i` is out of range.
+- **`release_track_data::borrow_mut<Data>`** mutably borrows track `i`'s data, where `i: u8`. Aborts if `i` is out of range.
 
 ## Dependencies
 

@@ -135,13 +135,15 @@ fun new_and_filled_at_max_tracks() {
     let max = release::max_tracks();
     let rel = release_with_tracks(max, &mut ctx);
 
+    let last = (max - 1) as u8;
+
     let filled = release_track_data::filled(&rel, 7u64);
-    assert_eq!(filled.length(), max);
-    assert_eq!(*filled.borrow(max - 1), 7);
+    assert_eq!(filled.length() as u64, max);
+    assert_eq!(*filled.borrow(last), 7);
 
     let built = release_track_data::new(&rel, vector::tabulate!(max, |i| i));
-    assert_eq!(built.length(), max);
-    assert_eq!(*built.borrow(max - 1), max - 1);
+    assert_eq!(built.length() as u64, max);
+    assert_eq!(*built.borrow(last), max - 1);
 
     destroy(filled);
     destroy(built);
@@ -154,8 +156,8 @@ fun entries_align_with_the_tracklist() {
     let rel = release_with_tracks(5, &mut ctx);
 
     let track_data = release_track_data::new(&rel, *rel.tracks());
-    assert_eq!(track_data.length(), rel.tracks().length());
-    track_data.length().do!(|i| assert_eq!(*track_data.borrow(i), rel.tracks()[i]));
+    assert_eq!(track_data.length() as u64, rel.tracks().length());
+    track_data.length().do!(|i| assert_eq!(*track_data.borrow(i), rel.tracks()[i as u64]));
 
     destroy(track_data);
     destroy(rel);
